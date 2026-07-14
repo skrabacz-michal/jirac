@@ -79,6 +79,39 @@ export class JiraClient {
       body: { transition: { id: transitionId } },
     });
   }
+
+  async paginate(path, itemsKey) {
+    const items = [];
+    let startAt = 0;
+    for (;;) {
+      const sep = path.includes('?') ? '&' : '?';
+      const page = await this.request(`${path}${sep}startAt=${startAt}`);
+      items.push(...page[itemsKey]);
+      if (page.isLast || items.length >= page.total) break;
+      startAt += page[itemsKey].length;
+    }
+    return items;
+  }
+
+  getActiveSprints(boardId) {
+    return this.paginate(`/rest/agile/1.0/board/${boardId}/sprint?state=active`, 'values');
+  }
+
+  getSprintIssues(sprintId) {
+    return this.paginate(`/rest/agile/1.0/sprint/${sprintId}/issue`, 'issues');
+  }
+
+  getBoardIssues(boardId) {
+    return this.paginate(`/rest/agile/1.0/board/${boardId}/issue`, 'issues');
+  }
+
+  async getBoardIssuesForBoard(boardId) {
+    const sprints = await this.getActiveSprints(boardId);
+    if (sprints.length === 0) return this.getBoardIssues(boardId);
+
+    const perSprint = await Promise.all(sprints.map((s) => this.getSprintIssues(s.id)));
+    return perSprint.flat();
+  }
 }
 
 export function clientFromEnv() {

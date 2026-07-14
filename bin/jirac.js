@@ -6,6 +6,7 @@ import { searchCommand } from '../src/commands/search.js';
 import { createCommand } from '../src/commands/create.js';
 import { projectCommand } from '../src/commands/project.js';
 import { transitionCommand } from '../src/commands/transition.js';
+import { boardCommand } from '../src/commands/board.js';
 
 function withErrorHandling(fn) {
   return async (...args) => {
@@ -57,5 +58,11 @@ program
   .description('Change an issue\'s status (e.g. "In Progress", "Done")')
   .option('--json', 'Print raw JSON')
   .action(withErrorHandling(transitionCommand));
+
+program
+  .command('board <id>')
+  .description('List issues on a board\'s active sprint(s), or all board issues if none is active')
+  .option('--json', 'Print raw JSON')
+  .action(withErrorHandling(boardCommand));
 
 program.parse();
