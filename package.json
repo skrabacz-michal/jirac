@@ -1,0 +1,16 @@
+{
+  "name": "jirac",
+  "version": "1.0.0",
+  "description": "jirac — a minimal self-hosted Jira CLI (get/search/create issues) using PAT auth against the REST API",
+  "type": "module",
+  "bin": {
+    "jirac": "./bin/jirac.js"
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "@clack/prompts": "^1.7.0"
+  }
+}
