@@ -1,7 +1,12 @@
+<img src="assets/icon.svg" width="64" height="64" alt="jirac icon" align="left">
+
 # jirac
 
 A free, minimal CLI for self-hosted Jira — an in-house alternative to
 Appfire's paid ACLI/Jira CLI.
+
+<br clear="left">
+
 
 ## Install
 
