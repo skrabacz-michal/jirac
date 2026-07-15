@@ -62,6 +62,7 @@ program
 program
   .command('board <id>')
   .description('List issues on a board\'s active sprint(s), or all board issues if none is active')
+  .option('--status <status>', 'Filter by status name (case-insensitive; repeatable or comma-separated)', (v, acc) => acc.concat(v.split(',')), [])
   .option('--json', 'Print raw JSON')
   .action(withErrorHandling(boardCommand));
 
