@@ -22,12 +22,18 @@ export class JiraClient {
     });
 
     const text = await res.text();
-    const data = text ? JSON.parse(text) : undefined;
+    const contentType = res.headers.get('content-type') || '';
+    const isJson = contentType.includes('json');
+    const data = text && isJson ? JSON.parse(text) : undefined;
 
     if (!res.ok) {
-      const detail = data?.errorMessages?.join('; ') || data?.message;
+      const detail = data?.errorMessages?.join('; ') || data?.message || (!isJson && text.trim() ? `non-JSON response (${contentType || 'unknown type'})` : '');
       const suffix = detail ? `: ${detail}` : '';
       throw new Error(`${res.status} ${res.statusText}${suffix}`);
+    }
+
+    if (text && !isJson) {
+      throw new Error(`Expected JSON from ${path} but got ${contentType || 'unknown content-type'} (HTTP ${res.status}). Check JIRA_BASE_URL and that the Agile REST API is enabled.`);
     }
 
     return data;
@@ -106,7 +112,8 @@ export class JiraClient {
   }
 
   async getBoardIssuesForBoard(boardId) {
-    const sprints = await this.getActiveSprints(boardId);
+    // Kanban boards have no sprint endpoint (Jira 400s) — fall back to all board issues.
+    const sprints = await this.getActiveSprints(boardId).catch(() => []);
     if (sprints.length === 0) return this.getBoardIssues(boardId);
 
     const perSprint = await Promise.all(sprints.map((s) => this.getSprintIssues(s.id)));
